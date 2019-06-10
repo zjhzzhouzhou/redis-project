@@ -3,11 +3,14 @@ server:
 
 spring:
   redis:
-    host: 192.168.88.188
     password:
-    port: 6379
     pool:
-      max-idle: 100 #最大空闲数
-      min-idle: 1  #最小空闲数
-      max-active: 1000
+      max-active: 8
       max-wait: -1
+      max-idle: 8
+      min-idle: 0
+    timeout: 0
+    commandTimeout: 5000
+    cluster:
+      nodes: 192.168.88.166:7001,192.168.88.166:7002,192.168.88.166:7003,192.168.88.166:7004,192.168.88.166:7005,192.168.88.166:7006
+      max-redirects: 5

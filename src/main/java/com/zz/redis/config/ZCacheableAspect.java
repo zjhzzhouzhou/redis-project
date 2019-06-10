@@ -1,5 +1,6 @@
 package com.zz.redis.config;
 
+import com.zz.redis.rediscluster.redis.cluster.JedisClusterCache;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -24,7 +25,7 @@ public class ZCacheableAspect {
     private static final Logger log = LoggerFactory.getLogger(ZCacheableAspect.class);
 
     @Autowired
-    protected RedisUtil redisUtil;
+    private JedisClusterCache redisUtil;
 
     /**
      * 拦截所有元注解ZCacheable注解的方法
@@ -61,7 +62,7 @@ public class ZCacheableAspect {
             key = cacheName + ":" + ZCacheUtil.parseKey(key, method, joinPoint.getArgs());
         }
         log.info("cacheable.key()=" + key);
-        Object obj = redisUtil.get(key);
+        Object obj = redisUtil.get(key,Object.class);
         if (obj != null) {
             log.info("**********从Redis中查到了数据**********");
             log.info("Redis的KEY值:" + key+"|REDIS的VALUE值:" + obj.toString());
@@ -72,7 +73,7 @@ public class ZCacheableAspect {
         log.info("**********开始将数据保存到Redis缓存**********");
         if (key != null) {
             if (expireTime > 0) { // 有过期时间
-                redisUtil.set(key, obj, expireTime);
+                redisUtil.setex(key,obj,expireTime);
 
             }else{
                 redisUtil.set(key, obj);

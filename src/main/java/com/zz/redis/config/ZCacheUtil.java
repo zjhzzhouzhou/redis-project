@@ -83,7 +83,7 @@ public class ZCacheUtil {
 		Object[] objects = joinPoint.getArgs();
 		for (int i = 0; i < objects.length; i++) {
 			if (objects[i] != null) {
-				sb.append(objects.toString());
+				sb.append(objects[i].toString());
 			}
 		}
 		return sb.toString();
