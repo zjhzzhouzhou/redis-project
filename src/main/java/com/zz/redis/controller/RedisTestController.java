@@ -4,11 +4,14 @@ import com.zz.redis.config.ZCachePut;
 import com.zz.redis.config.ZCacheable;
 import com.zz.redis.config.bean.Student;
 import com.zz.redis.rediscluster.redis.cluster.JedisClusterCache;
+import com.zz.redis.service.delay.TestOrderDelayQueue;
+import com.zz.redis.service.delay.TestRegDelayQueue;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,6 +32,12 @@ public class RedisTestController {
 
     @Autowired
     private JedisClusterCache redisUtil;
+
+    @Autowired
+    private TestOrderDelayQueue testOrderDelayQueue;
+
+    @Autowired
+    private TestRegDelayQueue testRegDelayQueue;
 
     // ---------------------  字符串测试  ---------------------------
     @ApiOperation("redis测试")
@@ -72,4 +81,24 @@ public class RedisTestController {
         Student studentResult = Student.builder().name(student.getName()).age(new Random().nextInt(100)).sex("男").build();
         return studentResult;
     }
+
+    // ------------------------  延时队列 -------------------
+    @ApiOperation("添加定时orderId")
+    @RequestMapping(value = "/addDelayOrder/{orderId}/{time}", method = RequestMethod.POST)
+    public Object addZset(@PathVariable String orderId, @PathVariable Integer time) {
+
+        boolean flag = testOrderDelayQueue.addJobId(orderId, time);
+        return String.format("已经存入了订单id{%s},延时{%s}秒", orderId, time);
+
+    }
+
+    @ApiOperation("添加定时RegId")
+    @RequestMapping(value = "/addDelayRegOrder/{orderId}/{time}", method = RequestMethod.POST)
+    public Object addReg(@PathVariable String orderId, @PathVariable Integer time) {
+
+        boolean flag = testRegDelayQueue.addJobId(orderId, time);
+        return String.format("已经存入了订单id{%s},延时{%s}秒", orderId, time);
+
+    }
+
 }
