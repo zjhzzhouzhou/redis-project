@@ -1,12 +1,12 @@
 package com.zz.redis.rediscluster.redis.delayqueue;
 
-import com.zz.redis.rediscluster.redis.cluster.JedisClusterCache;
+import com.zz.redis.config.RedisUtil;
 import com.zz.redis.utils.ThreadPoolUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.util.CollectionUtils;
-import redis.clients.jedis.Tuple;
 
 import javax.annotation.PostConstruct;
 import java.util.Calendar;
@@ -24,7 +24,7 @@ public abstract class AbstractDelayQueueMachineFactory {
     protected Logger logger = LoggerFactory.getLogger(AbstractDelayQueueMachineFactory.class);
 
     @Autowired
-    protected JedisClusterCache jedisClusterCache;
+    protected RedisUtil redisUtil;
 
     /**
      * 插入任务id
@@ -37,8 +37,7 @@ public abstract class AbstractDelayQueueMachineFactory {
         Calendar instance = Calendar.getInstance();
         instance.add(Calendar.SECOND, time);
         long delaySeconds = instance.getTimeInMillis() / 1000;
-        Long zadd = jedisClusterCache.zadd(setDelayQueueName(), delaySeconds, jobId);
-        return zadd > 0;
+        return redisUtil.zadd(setDelayQueueName(), delaySeconds, jobId);
 
     }
 
@@ -51,13 +50,13 @@ public abstract class AbstractDelayQueueMachineFactory {
                 // 获取当前时间的时间戳
                 long now = System.currentTimeMillis() / 1000;
                 // 获取当前时间前的任务列表
-                Set<Tuple> tuples = jedisClusterCache.zrangeByScoreWithScores(setDelayQueueName(), 0, now);
+                Set<DefaultTypedTuple> tuples = redisUtil.zrangeByScoreWithScores(setDelayQueueName(), 0, now);
                 // 如果不为空则遍历判断其是否满足取消要求
                 if (!CollectionUtils.isEmpty(tuples)) {
-                    for (Tuple tuple : tuples) {
+                    for (DefaultTypedTuple tuple : tuples) {
 
-                        String jobId = tuple.getElement();
-                        Long num = jedisClusterCache.zrem(setDelayQueueName(), jobId);
+                        String jobId = (String)tuple.getValue();
+                        Long num = redisUtil.zremove(setDelayQueueName(), jobId);
                         // 如果移除成功, 则取消订单
                         if (num > 0) {
                             ThreadPoolUtil.execute(() -> invoke(jobId));

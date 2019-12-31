@@ -1,6 +1,7 @@
 package com.zz.redis.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -142,7 +143,6 @@ public class RedisUtil {
     /**
      * 递增
      * @param key 键
-     * @param by 要增加几(大于0)
      * @return
      */
     public long incr(String key, long delta){
@@ -155,7 +155,6 @@ public class RedisUtil {
     /**
      * 递减
      * @param key 键
-     * @param by 要减少几(小于0)
      * @return
      */
     public long decr(String key, long delta){
@@ -443,7 +442,6 @@ public class RedisUtil {
      * 将list放入缓存
      * @param key 键
      * @param value 值
-     * @param time 时间(秒)
      * @return
      */
     public boolean lSet(String key, Object value) {
@@ -478,7 +476,6 @@ public class RedisUtil {
      * 将list放入缓存
      * @param key 键
      * @param value 值
-     * @param time 时间(秒)
      * @return
      */
     public boolean lSet(String key, List<Object> value) {
@@ -541,5 +538,43 @@ public class RedisUtil {
             e.printStackTrace();
             return 0;
         }
+    }
+    //===============================ZSet=================================
+
+    /**
+     * 向Zset里添加成员
+     * @param key
+     * @param score
+     * @param value
+     * @return
+     */
+    public boolean zadd(String key, long score, String value){
+        Boolean result = redisTemplate.opsForZSet().add(key, value, score);
+        return result;
+
+    }
+
+
+    /**
+     * 获取 某key 下 某一分值区间的队列
+     * @param key
+     * @param from
+     * @param to
+     * @return
+     */
+    public Set<DefaultTypedTuple> zrangeByScoreWithScores(String key, int from, long to) {
+        Set<DefaultTypedTuple> set = redisTemplate.opsForZSet().rangeByScoreWithScores(key, from, to);
+        return set;
+    }
+
+    /**
+     * 移除 Zset队列值
+     * @param key
+     * @param value
+     * @return
+     */
+    public Long zremove(String key, String ... value ) {
+        return redisTemplate.opsForZSet().remove(key,value);
+
     }
 }

@@ -1,6 +1,5 @@
 package com.zz.redis.config;
 
-import com.zz.redis.rediscluster.redis.cluster.JedisClusterCache;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -25,7 +24,7 @@ public class ZCacheableAspect {
     private static final Logger log = LoggerFactory.getLogger(ZCacheableAspect.class);
 
     @Autowired
-    private JedisClusterCache redisUtil;
+    private RedisUtil redisUtil;
 
     /**
      * 拦截所有元注解ZCacheable注解的方法
@@ -73,7 +72,7 @@ public class ZCacheableAspect {
         log.info("**********开始将数据保存到Redis缓存**********");
         if (key != null) {
             if (expireTime > 0) { // 有过期时间
-                redisUtil.setex(key,obj,expireTime);
+                redisUtil.set(key,obj,expireTime);
 
             }else{
                 redisUtil.set(key, obj);

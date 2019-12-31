@@ -1,9 +1,9 @@
 package com.zz.redis.controller;
 
+import com.zz.redis.config.RedisUtil;
 import com.zz.redis.config.ZCachePut;
 import com.zz.redis.config.ZCacheable;
 import com.zz.redis.config.bean.Student;
-import com.zz.redis.rediscluster.redis.cluster.JedisClusterCache;
 import com.zz.redis.service.delay.TestOrderDelayQueue;
 import com.zz.redis.service.delay.TestRegDelayQueue;
 import io.swagger.annotations.Api;
@@ -30,8 +30,9 @@ public class RedisTestController {
 
     private Logger logger = LoggerFactory.getLogger(RedisTestController.class);
 
+
     @Autowired
-    private JedisClusterCache redisUtil;
+    private RedisUtil redisUtil;
 
     @Autowired
     private TestOrderDelayQueue testOrderDelayQueue;
