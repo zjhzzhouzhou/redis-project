@@ -20,8 +20,8 @@ import java.net.UnknownHostException;
  * 
  * @Description: redis配置
  *
- * @author yl
- * @date 2018年5月2日
+ * @author zhouzhou
+ * @date 2019年12月31日 17:19:31
  */
 @Configuration
 @AutoConfigureAfter(RedisAutoConfiguration.class)
