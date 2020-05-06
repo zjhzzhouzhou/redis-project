@@ -1,11 +1,13 @@
 package com.zz.redis.controller;
 
+import com.google.common.collect.Lists;
 import com.zz.redis.config.RedisUtil;
 import com.zz.redis.config.ZCachePut;
 import com.zz.redis.config.ZCacheable;
 import com.zz.redis.config.bean.Student;
 import com.zz.redis.service.delay.TestOrderDelayQueue;
 import com.zz.redis.service.delay.TestRegDelayQueue;
+import com.zz.redis.utils.DateUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -16,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.websocket.server.PathParam;
+import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -101,5 +106,26 @@ public class RedisTestController {
         return String.format("已经存入了订单id{%s},延时{%s}秒", orderId, time);
 
     }
+
+    // ------------------------ 最新列表
+    @ApiOperation("添加列表")
+    @RequestMapping(value = "/addList/{title}", method = RequestMethod.POST)
+    public Object addList(@PathVariable String title) {
+        List<String> list = Lists.newArrayList();
+        for (int i = 0; i < 10; i++) {
+            list.add(title + DateUtil.formatDate(DateUtil.DATE_TIME_PATTERN,new Date())+ "-" + i);
+        }
+        boolean flag = redisUtil.lPush(title, list);
+        String result = flag ? "成功" : "失败";
+        return "插入" + result;
+    }
+
+    @ApiOperation("获取列表")
+    @RequestMapping(value = "/getList/{title}", method = RequestMethod.POST)
+    public Object getList(@PathVariable String title) {
+        List<Object> result = redisUtil.lGet(title, 0, 9);
+        return result;
+    }
+
 
 }
